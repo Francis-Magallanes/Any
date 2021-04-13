@@ -28,18 +28,32 @@ def d_square_error(y_actual, y_expected):
 class Layer:
     #this will use a sigmoid activation function
     
+    #this will initialize the layer object 
+    #if the layer is already trained, the user can input the bias, weight, and learning rate
+    def __init__(self,number_inputs = None, number_neurons = None, bias = None, weights = None, learning_rate=None):
 
-    def __init__(self,number_inputs, number_neurons):
+        if(number_inputs is not None and number_neurons is not None):
+            # initializing the weights with random numbers between 0 to 1
+            self.weights = np.random.randn(number_neurons, number_inputs) 
 
-        # initializing the weights with random numbers between 0 to 1
-        self.weights = np.random.randn(number_neurons, number_inputs) 
+            #initialize the bias with one
+            self.bias = np.ones((number_neurons,1))
 
-        #initialize the bias with one
-        self.bias = np.ones((number_neurons,1))
+            #default learning rate is 0.5. Don't change these value pls.
+            #use the training method to change the learning rate
+            self.learning_rate = 0.5
 
-        #default learning rate is 0.5. Don't change these value pls.
-        #use the training method to change the learning rate
-        self.learning_rate = 0.5 
+        elif (bias is not None and weights is not None and learning_rate is not None):
+            self.weights = weights
+
+            self.bias = bias
+
+            self.learning_rate = learning_rate
+        
+        else:
+            raise Exception("The input arguements are enough to initialize the layer object")
+
+
 
     def feedforward(self,inputs):
         #apply feedforward algorithm with equation 4 here
@@ -80,23 +94,35 @@ class NeuralNetwork:
     #num_neurons_per_layer is a list that contains number of neurons per layer
     #each element represent a number of neurons for that layer
     #the minimum number of elements for num_neurons_per_layer is two
-    #Ex. 1,2,3 - this signifies that there is one input in the input layer.
+    #Ex. [1,2,3] - this signifies that there is one input in the input layer.
     # there are 2 neurons for the first idden layer and also, it has one hidden layer
     #Lastly, there are 3 neurons at the output layer
-    def __init__(self,*num_neurons_per_layer):
-        #for the checking if num_neurons_per_layer have at least two elements
-        assert len(num_neurons_per_layer) >= 2, "num_neurons_per_layer input should have at least two elements"
-
-        #create a list of layers
-        self.layers = [ Layer(num_neurons_per_layer[i], num_neurons_per_layer[i+1]) for i in range(len(num_neurons_per_layer) - 1)]
-    
-    #This constructor will load the saved model based on the filepath_model input
+    #this constructor can load also from the json file which contains the model
     #filepath_model contains the filepath of the model to be loaded
     #By default, it will check for neural_network_model in the current relative location
-    @classmethod
-    def load(self,filepath_model="neural_network_model.csv"):
-        pass
-        
+    def __init__(self,num_neurons_per_layer=[],filepath_model="neural_network_model.json"):
+
+        if(len(num_neurons_per_layer) > 0):
+            #for the checking if num_neurons_per_layer have at least two elements
+            assert len(num_neurons_per_layer) >= 2, "num_neurons_per_layer input should have at least two elements"
+
+            #create a list of layers
+            self.layers = [ Layer(number_inputs = num_neurons_per_layer[i], number_neurons = num_neurons_per_layer[i+1]) for i in range(len(num_neurons_per_layer) - 1)]
+        else:
+            
+            #loading of json file
+            with open(filepath_model,  "r") as read_file:
+                model = json.load(read_file) #this holds a dictionary within a dictionary
+            
+            self.layers = []
+            for nth_layer in model:
+               
+                learning_rate = model[nth_layer]["learning_rate"]
+                weights = np.array(model[nth_layer]["weights"])
+                bias =  np.array(model[nth_layer]["bias"])
+                layer = Layer(learning_rate=learning_rate, weights=weights, bias = bias)
+
+                self.layers.append(layer)
 
     def train(self, x_train, y_train, learning_rate = 0.5, epochs = 10000):
 
@@ -138,7 +164,7 @@ class NeuralNetwork:
     #filepath input is the filepath were the model to be saved and its name
     #By default, it will save in the current relative location with neural_network_model as its filename 
     #noted that it will use a json file
-    def save(self,filepath="neural_network_model.json"):
+    def save_model(self,filepath="neural_network_model.json"):
 
         #this will create a dictionary for putting the text into the json file
         model ={}
@@ -160,42 +186,3 @@ class NeuralNetwork:
         #putting the model into a json file
         with open(filepath,'w') as nn_model:
             json.dump(model,nn_model)
-
-        
-
-    
-
-
-#With the defined neural network class, instantiated a neural network with input layer (4 inputs),
-# 2 hidden layer(with 3  neurons and 2 neurons, respectively), and output layer (with 1 neurons)
-neural_network = NeuralNetwork(4,3,2,1)
-
-#TRAINING SESSION
- #possible inputs based on the activity
- #with dimensions of (number of inputs) by (number of training samples) - col x row
- #size: 4 x 8
-x_train = np.array([[1,1,0,0,1,0,0,0],[0,0,0,1,1,0,0,0],[0,0,1,0,0,1,0,1],[1,0,1,0,0,1,1,0]])
-
- #possible outputs based on the activity
-#with dimensions of (number of outputs) by (number of training samples) - col x row
-#size: 1 x 8
-y_train = np.array([[1,1,0,0,1,1,0,0]])
-
-start = time.time()
-neural_network.train(x_train, y_train, learning_rate = 0.9, epochs = 100000)
-
-#for the predictions
-#for the calculating the time of training
-time_training = time.time() - start
-
-#input for the neural network
-x_test = np.array([[1,1,0,0,1,0,0,0],[0,0,0,1,1,0,0,0],[0,0,1,0,0,1,0,1],[1,0,1,0,0,1,1,0]])
-
-y_test = neural_network.predict(x_test)
-
-#show the output
-print(y_test)
-print("Time training: {}".format(time_training))
-
-#test of the saving of the model
-neural_network.save()
