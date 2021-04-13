@@ -93,7 +93,8 @@ class NeuralNetwork:
     #This constructor will load the saved model based on the filepath_model input
     #filepath_model contains the filepath of the model to be loaded
     #By default, it will check for neural_network_model in the current relative location
-    def __init__(self,filepath_model="neural_network_model.csv"):
+    @classmethod
+    def load(self,filepath_model="neural_network_model.csv"):
         pass
         
 
@@ -134,10 +135,33 @@ class NeuralNetwork:
         
         return y_predict
     
-    #filepath inpu is the filepath were the model to be saved and its name
+    #filepath input is the filepath were the model to be saved and its name
     #By default, it will save in the current relative location with neural_network_model as its filename 
-    def save(filepath="neural_network_model.csv"):
-        pass
+    #noted that it will use a json file
+    def save(self,filepath="neural_network_model.json"):
+
+        #this will create a dictionary for putting the text into the json file
+        model ={}
+
+        for i,layer in enumerate(self.layers):
+
+            temp = vars(layer)#this will get the attributes of the layer object
+
+            #this part will only get the important parts of the model
+            #which is the bias, weights, and the learning rate
+            layer_model =  {}
+
+            layer_model["learning_rate"] = temp["learning_rate"]
+            layer_model["weights"] = temp["weights"].tolist()
+            layer_model["bias"] = temp["bias"].tolist()
+
+            model[f"layer_{i+1}"] = layer_model
+        
+        #putting the model into a json file
+        with open(filepath,'w') as nn_model:
+            json.dump(model,nn_model)
+
+        
 
     
 
@@ -172,3 +196,6 @@ y_test = neural_network.predict(x_test)
 #show the output
 print(y_test)
 print("Time training: {}".format(time_training))
+
+#test of the saving of the model
+neural_network.save()
