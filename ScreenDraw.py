@@ -1,17 +1,21 @@
 import turtle
 from turtle import Turtle, Screen
+from tkinter import messagebox
 import pygetwindow
 import pyautogui
 from PIL import Image
+import opencv
 
 fileName = "Any"
 windowname = "Any - 0 to 9 Digit Recognition"
-screen = turtle.Screen()
-screen.setup(300,300)
 
+#his will build the screen
+screen = Screen()
+screen.setup(width = 350, height=350, startx = None, starty=None)
 t = Turtle("turtle")
 t.pen(pensize = 10)
 t.speed(-1)
+
 
 def dragging(x, y):
     t.ondrag(None)
@@ -39,20 +43,26 @@ def SaveImage():
 def WindowScreenhot():
     t.hideturtle()
 
-    x1_offset = 10
-    y1_offset = 10
+    x1_offset = 15
+    y1_offset = 40
+    x2_offset = -40
+    y2_offset = -40
 
     window = pygetwindow.getWindowsWithTitle(windowname)[0]
     x1,y1,width,height =window.left, window.top, window.width, window.height
     x2,y2 = x1 + width, y1 + height
-    window_dim = (x1,y1,x2,y2) 
+
+    window_dim = (x1+x1_offset, y1+y1_offset, x2 + x2_offset, y2 + y2_offset) 
 
     print(window_dim)
 
     pyautogui.screenshot(fileName+".png")
     img = Image.open(fileName+".png")
     img = img.crop(window_dim)
-    img.show(fileName+".png")
+    img.save(fileName+".png")
+
+    messagebox.showinfo("Guess",  "I think it is")
+    t.showturtle()
 
 
 
@@ -65,7 +75,6 @@ def main():
     turtle.onscreenclick(screenclear, 3) #event when right click is clicked
     turtle.onkey(WindowScreenhot, 'space')
     
-
     screen.title(windowname)
     screen.mainloop()
 
