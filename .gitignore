@@ -3,4 +3,4 @@ NeuralNetworkScratch.cpython-37.pyc
 mnist_test.csv
 mnist_train.csv
 mnist_data.pkl
-
+*.png
