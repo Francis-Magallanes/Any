@@ -19,12 +19,7 @@ def square_error(y_actual, y_expected):
 def d_square_error(y_actual, y_expected):
     return np.subtract(y_actual,y_expected)
 
-
-
 #definition of the layer class so that the multi-layered neural network can be implemented
-
-#definition of the layer class so that the multi-layered neural network can be implemented
-
 class Layer:
     #this will use a sigmoid activation function
     
@@ -51,7 +46,7 @@ class Layer:
             self.learning_rate = learning_rate
         
         else:
-            raise Exception("The input arguements are enough to initialize the layer object")
+            raise Exception("The input arguements are not enough to initialize the layer object")
 
 
 
@@ -185,4 +180,4 @@ class NeuralNetwork:
         
         #putting the model into a json file
         with open(filepath,'w') as nn_model:
-            json.dump(model,nn_model)
+            json.dump(model,nn_model, indent= 1)
