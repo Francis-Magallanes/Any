@@ -7,6 +7,7 @@ from PIL import Image
 import NeuralNetworkScratch as nns
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 fileName = "Any"
 windowname = "Any - 0 to 9 Digit Recognition"
@@ -15,7 +16,7 @@ windowname = "Any - 0 to 9 Digit Recognition"
 screen = Screen()
 screen.setup(width = 350, height=350, startx = None, starty=None)
 t = Turtle("turtle")
-t.pen(pensize = 10)
+t.pen(pensize = 36)
 t.speed(-1)
 
 #Initializing the trained network
@@ -23,16 +24,22 @@ ann = nns.NeuralNetwork()
 
 def predictdrawing():
 
+    #convert the image to grayscale and resize it into 28 px by 28 px
     image_orig =  cv2.imread(fileName+".png")
     image_gray = cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY)
-    image_gray_resized = cv2.resize(image_gray,(28,28))
+    image_gray_resized = cv2.resize(image_gray,(28,28), interpolation=cv2.INTER_LANCZOS4)
     #cv2.imwrite("adjusted_img.png",image_gray_resized)
+    #plt.imshow(image_gray_resized, cmap = "Greys")
 
     #adjustment for the feeding to the neural network
     seperator =  112.5
-    print(image_gray_resized)
-    image_gray_resized_adj = np.where(image_gray_resized < seperator, 0.01, image_gray_resized)
-    image_gray_resized_adj =  np.where(image_gray_resized >= seperator, 0.99, image_gray_resized)
+   # print(image_gray_resized)
+    image_gray_resized_adj = np.where(image_gray_resized < seperator, 0.99, image_gray_resized)
+    image_gray_resized_adj =  np.where(image_gray_resized_adj >= seperator, 0.01, image_gray_resized_adj)
+
+    plt.imshow(image_gray_resized_adj, cmap = "Greys")
+    plt.show()
+
     image_gray_resized_adj = np.reshape(image_gray_resized_adj, (784,1))
     #cv2.imshow("Test", image_gray_resized_adj.reshape(28,28))
 
@@ -58,15 +65,6 @@ def leftclick(x,y):
 def screenclear(x, y):
     t.clear()
 
-def SaveImage():
-    screen.tracer(False)
-    screen.tracer(True)
-    canvas = screen.getcanvas()
-    canvas.postscript(file= fileName+'.eps',width=28, height=28)
-
-    img = Image.open(fileName+'.eps')
-    img.save(fileName+'.jpg')
-
 def WindowScreenhot():
     t.hideturtle()
 
@@ -91,7 +89,6 @@ def WindowScreenhot():
     pred = predictdrawing()
     messagebox.showinfo("Turtle say its....",  f"Turtle say its a number {pred}")
     t.showturtle()
-
 
 
 def main():
