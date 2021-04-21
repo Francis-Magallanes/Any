@@ -24,9 +24,10 @@ ann = nns.NeuralNetwork()
 
 def predictdrawing():
 
+    #convert the image to grayscale and resize it into 28 px by 28 px
     image_orig =  cv2.imread(fileName+".png")
     image_gray = cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY)
-    image_gray_resized = cv2.resize(image_gray,(28,28))
+    image_gray_resized = cv2.resize(image_gray,(28,28), interpolation=cv2.INTER_LANCZOS4)
     #cv2.imwrite("adjusted_img.png",image_gray_resized)
     #plt.imshow(image_gray_resized, cmap = "Greys")
 
@@ -64,15 +65,6 @@ def leftclick(x,y):
 def screenclear(x, y):
     t.clear()
 
-def SaveImage():
-    screen.tracer(False)
-    screen.tracer(True)
-    canvas = screen.getcanvas()
-    canvas.postscript(file= fileName+'.eps',width=28, height=28)
-
-    img = Image.open(fileName+'.eps')
-    img.save(fileName+'.jpg')
-
 def WindowScreenhot():
     t.hideturtle()
 
@@ -97,7 +89,6 @@ def WindowScreenhot():
     pred = predictdrawing()
     messagebox.showinfo("Turtle say its....",  f"Turtle say its a number {pred}")
     t.showturtle()
-
 
 
 def main():
