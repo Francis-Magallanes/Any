@@ -16,7 +16,7 @@ windowname = "Any - 0 to 9 Digit Recognition"
 screen = Screen()
 screen.setup(width = 350, height=350, startx = None, starty=None)
 t = Turtle("turtle")
-t.pen(pensize = 36)
+t.pen(pensize = 25)
 t.speed(-1)
 
 #Initializing the trained network
